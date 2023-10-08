@@ -1,56 +1,59 @@
-import React, { useState } from 'react';
-import './profil.css';
-import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useState } from 'react'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import { Button } from 'react-bootstrap';
-import Box from '@mui/material/Box';
+import * as Componentprofil from './Compomentprofil'
+import  './profil.css'
+import { useNavigate } from 'react-router-dom';
 
-function Profil() {
-    const [content, setContent] = useState('')
 
-    const handleChange = (value) => {
-        setContent(value);
-    };
-    /** ajout d'onglet */
-    const [inputs, setInputs] = useState(['']); // Tableau initial avec un champ de saisie vide
+const Profil = () => {
 
-    const handleAddInput = () => {
-      setInputs([...inputs, '']); // Ajoute un champ de saisie vide à la fin du tableau
-    };
-  
-    const handleRemoveInput = (index) => {
-      const updatedInputs = [...inputs];
-      updatedInputs.splice(index, 1); // Supprime l'élément du tableau à l'index donné
-      setInputs(updatedInputs);
-    };
-  
-    const handleInputChange = (index, value) => {
-      const updatedInputs = [...inputs];
-      updatedInputs[index] = value;
-      setInputs(updatedInputs);
-    };
+  const [name, setName] = useState('');
+  const navigate = useNavigate();
 
-    /** aujout des indentifiant telephonique */
-    const [selectedCountry, setSelectedCountry] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-  
-    const countryCodes = [
-      { country: 'Afghanistan', code: '+93' },
-      { country: 'Algérie', code: '+213' },
-      { country: 'Angola', code: '+244' },
-      // Ajoutez les autres pays africains avec leurs codes téléphoniques ici
-    ];
-  
-    const handleCountryChange = (e) => {
-      setSelectedCountry(e.target.value);
-    };
-  
-    const handlePhoneNumberChange = (e) => {
-      setPhoneNumber(e.target.value);
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (name !== '') {
+      navigate('/profil/fondation');
+    } else {
+      alert('Veuillez remplir tous les champs.');
+    }
+
+    /** envoi des donnees au service api */
+    // reutilison le hook  const [name, setName] = useState('');
+    // reutilison le hook const [content, setContent] = useState('');
+    const data = {
+      name: name,
+      content: content
     };
 
-    /** progress bar here  */
+    fetch('https://jsonplaceholder.typicode.com', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+      console.log('Donnee Enregistrer avec success:', result);
+      console.log(data);
+      // message de succès
+    })
+    .catch(error => {
+      console.error('Erreur lors de l\'enregistrement des données:', error);
+      // d'erreur d'erreur
+    });
+  };
+  
+    /** progress bar here 
 
     const [activeTab, setActiveTab] = useState(1);
     const [progress, setProgress] = useState(0);
@@ -60,208 +63,151 @@ function Profil() {
         setActiveTab(activeTab + 1);
         setProgress((activeTab + 1) * 20);
       }
+    }; */
+
+    /** zone de texte */
+    const [content, setContent] = useState('')
+
+    const handleChange = (value) => {
+        setContent(value);
+    };
+
+    // upload file
+    const [selectedImages, setSelectedImages] = useState([]);
+
+    const handleFileChange = (event) => {
+      const files = event.target.files;
+      const imageArray = [];
+  
+      for (let i = 0; i < files.length; i++) {
+        imageArray.push({
+          name: files[i].name,
+          extension: files[i].name.split('.').pop(),
+        });
+      }
+  
+      setSelectedImages(imageArray);
+    };
+
+    const [selectedImage, setSelectedImage] = useState([]);
+
+    const handleFileChanges = (event) => {
+      const fil = event.target.files;
+      const imageArrays = [];
+  
+      for (let i = 0; i < fil.length; i++) {
+        imageArrays.push({
+          name: fil[i].name,
+          extension: fil[i].name.split('.').pop(),
+        });
+      }
+  
+      setSelectedImage(imageArrays);
     };
 
   return (
-    <div className="wrapper">
-      <header>
-      <div className="progress-bar-container">
-      <div className="progress-bar">
-        <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
-      </div>
-    </div>
-      </header>
-      <input type="radio" name="slider" defaultChecked id="home" />
-      <input type="radio" name="slider" id="blog" />
-      <input type="radio" name="slider" id="code" />
-      <input type="radio" name="slider" id="help" />
-      <input type="radio" name="slider" id="about" />
-      <nav>
-        <label htmlFor="home" className="home">Entreprise</label>
-        <label htmlFor="blog" className="blog">Fondation</label>
-        <label htmlFor="code" className="code">Réseaux</label>
-        <label htmlFor="help" className="help">Conctact</label>
-        <label htmlFor="about" className="about">About</label>
-        <div className="slider"></div>
-      </nav>
-      <section className='container-fluid'>
-        {/** onglet numero 1 */}
-        <br/>
-        <div className="content content-1">
-          <div className="title">
-          <Box component="span" sx={{ p: 2, border: '1px dashed grey' }}>
-            <Button>Importer imager</Button>
-          </Box>&nbsp;&nbsp;&nbsp;&nbsp;
-          <Box component="span" sx={{ p: 2, border: '1px dashed grey' }}>
-            <Button>Importer imager ou deposer vos fichier ici</Button>
-          </Box>
-          </div>
-          <br/>
-          <hr/>
-          <div className="form-group">
-            <label className="form-label">
-                Nom de l'entreprise
-            </label>
-            <input type="email" class="form-control" placeholder="Entrer le nom de l'entreprise" /> <br/>
-
-            <label className="form-label">
-                À Propos
-            </label>
+    <Componentprofil.Employeur11>
+    <Componentprofil.Rectangle1362 >
+    </Componentprofil.Rectangle1362>
+    <Componentprofil.Frame82>
+        <Componentprofil.FirstCheckBox>
+            <a href='#' >
+                {`Entreprise`}
+            </a>
+        </Componentprofil.FirstCheckBox>
+        <Componentprofil.FirstCheckBox1>
+            <Componentprofil.BxUserCircle1>
+            </Componentprofil.BxUserCircle1>
+            <Componentprofil.Fondation>
+                {`Fondation`}
+            </Componentprofil.Fondation>
+        </Componentprofil.FirstCheckBox1>
+        <Componentprofil.FirstCheckBox2>
+            <Componentprofil.BxGlobe1>
+            </Componentprofil.BxGlobe1>
+            <Componentprofil.RéseauxSociaux>
+                {`Réseaux Sociaux`}
+            </Componentprofil.RéseauxSociaux>
+        </Componentprofil.FirstCheckBox2>
+        <Componentprofil.FirstCheckBox3>
+            <Componentprofil.BxAt1>
+            </Componentprofil.BxAt1>
+            <Componentprofil.Contact>
+                {`Contact`}
+            </Componentprofil.Contact>
+        </Componentprofil.FirstCheckBox3>
+    </Componentprofil.Frame82>
+    <Componentprofil.LogoBannière>
+        {`Logo & Bannière`}
+    </Componentprofil.LogoBannière>
+    <Componentprofil.TéléchargerLeLogo>
+        {`Télécharger le Logo`}
+    </Componentprofil.TéléchargerLeLogo>
+    <Componentprofil.NomDeLEntreprise>
+        {`Nom de l’Entreprise`}
+        <input value={name} onChange={handleNameChange}  class="form-control" placeholder="Entrer le nom de l'entreprise" style={{width:'975px'}} required />
+    </Componentprofil.NomDeLEntreprise>
+    <Componentprofil.ÀPropos>
+        {`À Propos`}
+    </Componentprofil.ÀPropos>
+    <Componentprofil.Frame83>
+        <Componentprofil.Rectangle13632>
+        </Componentprofil.Rectangle13632>
+        <Componentprofil.ParcourezLesPhotosOu>
+            {`Parcourez les photos`}
             <div>
-                <ReactQuill value={content} onChange={handleChange} placeholder='Faites connaître votre entreprise. Faites savoir au candidat qui vous êtes ...' />
-            </div>
-            <br/>
-            <div>
-                <Button  htmlFor="blog" className='btn btn-primary tab-buttons blog' onClick={handleNextClick} disabled={activeTab === 5}>Suivant</Button>
-            </div>
-          </div>
-        </div>
-        {/** onglet numero 2 */}
-        <div className="content content-2"><br/><br/>
-          <div className="container">
-          <div className="row">
-            <div className="col">
-            <label className="form-label" style={{opacity: "75%"}}>
-                Type d’Organisation
-            </label>
-            <select className="form-select">
-                <option value="">Select 1</option>
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-                <option value="option3">Option 3</option>
-            </select>
-            </div>
-            <div className="col">
-            <label className="form-label" style={{opacity: "75%"}}>
-                Type d’Industrie
-            </label>
-            <select className="form-select">
-                <option value="">Select 2</option>
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-                <option value="option3">Option 3</option>
-            </select>
-            </div>
-            <div className="col">
-            <label className="form-label" style={{opacity: "75%"}}>
-                Taille Des Equipes
-            </label>
-            <select className="form-select">
-                <option value="">Select 3</option>
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-                <option value="option3">Option 3</option>
-            </select>
-            </div>
-          </div>
-        </div><br/>
-        {/** select option group 2 */}
-        <div className="container">
-            <div className="row">
-                <div className="col">
-                    <label className="form-label" style={{opacity: "75%"}}>
-                        Date De Création
-                    </label>
-                    <select className="form-select">
-                        <option value="">Select 1</option>
-                        <option value="option1">Option 1</option>
-                        <option value="option2">Option 2</option>
-                        <option value="option3">Option 3</option>
-                    </select>
-                </div>
-                <div className="col">
-                    <label className="form-label" style={{opacity: "75%"}}>
-                        Site Web
-                    </label>
-                    <select className="form-select">
-                        <option value="">Select 2</option>
-                        <option value="option1">Option 1</option>
-                        <option value="option2">Option 2</option>
-                        <option value="option3">Option 3</option>
-                    </select>
-                </div>
-            </div><br />
-            <label className="form-label" style={{opacity: "75%"}}>Vision de l’entreprise</label>
-            <div>
-                <ReactQuill value={content} onChange={handleChange} placeholder='Faites connaître votre entreprise. Faites savoir au candidat qui vous êtes ...' />
-            </div><br />
-            <Button className='col btn btn-secondary'>Precedent</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-            <Button className='col tab-buttons' onClick={handleNextClick} disabled={activeTab === 5} style={{marginTop:"0%"}}>Suivant</Button>
-        </div>
-        </div>
-        {/** onglet numero 3 */}
-        <div className="content content-3">
-            <div className="container" style={{ marginLeft:"2%"}}>
-            <br /><br />
-                {inputs.map((input, index) => (
-                    <div key={index}>
-                      <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="basic-addon3">https://example.com</span>
-                        </div>
-                        <input
-                                value={input}
-                                className='input-group-text'
-                                onChange={(e) => handleInputChange(index, e.target.value)}
-                                placeholder='entrer une adresse'
-                                style={{width: "60%"}}
-                        />
-                        <Button className='btn btn-danger' onClick={() => handleRemoveInput(index)}>X</Button>
-                      </div>
-                    </div>
+              <input type="file" accept="image/*" multiple onChange={handleFileChange} />
+              <div className="image-container">
+                {selectedImages.map((image, index) => (
+                  <div key={index} className="image-item">
+                    <span className="image-name">{image.name}</span>
+                    <span className="image-extension">.{image.extension}</span>
+                  </div>
                 ))}
-                <Button className='btn btn-light btn-sm' onClick={handleAddInput} style={{width: "95%"}}>+Ajouter</Button>
-                <br /><br />
-                <Button className='col btn btn-secondary'>Precedent</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-                <Button className='col tab-buttons' onClick={handleNextClick} disabled={activeTab === 5} style={{marginTop:"0%"}}>Suivant</Button>
+              </div>
             </div>
-        </div>
-        {/** onglet numero 4 */}
-        <div className="content content-4">
-            <br/><br />
-        <div className="form-group">
-            <label className="form-label">
-                Nom de l'entreprise
-            </label>
-            <input type="email" class="form-control" placeholder="Entrer le nom de l'entreprise" /> <br/>
-
-            <label className="form-label">
-                Numero
-            </label>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                        <select class="input-group-text" id="basic-addon3" value={selectedCountry} onChange={handleCountryChange}>
-                        <option value="">Sélectionnez un pays</option>
-                        {countryCodes.map((country, index) => (
-                        <option key={index} value={country.code}>
-                            {country.code}
-                        </option>
-                        ))}
-                    </select>
-                </div>
-                <input
-                    class="form-control"
-                    type="number"
-                    value={phoneNumber}
-                    onChange={handlePhoneNumberChange}
-                    placeholder="Numéro de téléphone"
-                />
-            </div>
-
-            <label className="form-label">
-                Email
-            </label>
-            <input type="email" class="form-control" placeholder="Entrer votre mail" /> <br/>
-
+        </Componentprofil.ParcourezLesPhotosOu>
+        <Componentprofil.BxCloudUpload1>
+        </Componentprofil.BxCloudUpload1>
+    </Componentprofil.Frame83>
+    <Componentprofil.Frame84>
+        <Componentprofil.Rectangle13631>
+        </Componentprofil.Rectangle13631>
+        <Componentprofil.ParcourezLesPhotosOu1>
+            {`Parcourez les photos ou déposez-les ici`}
             <div>
-                <Button className='col btn btn-secondary'>Precedent</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-                <Button className='col tab-buttons' onClick={handleNextClick} disabled={activeTab === 5} style={{marginTop:"0%"}}>Suivant</Button>
+              <input type="file" accept="image/*" multiple onChange={handleFileChanges}  />
+              <div className="image-container">
+                {selectedImage.map((image, index) => (
+                  <div key={index} className="image-item">
+                    <span className="image-name">{image.name}</span>
+                    <span className="image-extension">.{image.extension}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+        </Componentprofil.ParcourezLesPhotosOu1>
+        <Componentprofil.BxCloudUpload11>
+        </Componentprofil.BxCloudUpload11>
+    </Componentprofil.Frame84>
+    {/** apropos */}
+    <Componentprofil.Frame85>
+        <ReactQuill style={{width:'975px', height:'80px'}} value={content} onChange={handleChange} placeholder='Faites connaître votre entreprise. Faites savoir au candidat qui vous êtes ...'  required />
+    </Componentprofil.Frame85>
+    <Componentprofil.Copyright>
+        {`PSI`}
+    </Componentprofil.Copyright>
+    <Button class="btn btn-primary btn-lg" onClick={handleSubmit} style={{position: `absolute`, width: `264px`, left: `469px`, top: `895px`,}}>Suivant</Button>
+    <Componentprofil.Line1>
+    </Componentprofil.Line1>
+    <Componentprofil.Line3>
+    </Componentprofil.Line3>
+    <Componentprofil.Line41>
+    </Componentprofil.Line41>
+    <Componentprofil.Line2>
+    </Componentprofil.Line2>
+</Componentprofil.Employeur11>
+  )
 }
 
-export default Profil;
+export default Profil
